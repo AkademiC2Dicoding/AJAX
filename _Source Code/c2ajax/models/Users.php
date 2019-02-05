@@ -51,7 +51,8 @@ class Users{
 
     public function getUserInfo($userId){
         $generalInfo = $this->find($userId);
-        $generalInfo['weapons'] = $this->getInventory($userId);
+        unset($generalInfo['password']);
+        $generalInfo['inventory']['weapons'] = $this->getInventory($userId);
 
         return $generalInfo;
     }

@@ -1,16 +1,15 @@
 <?php
 ini_set('display_errors', 1);
 header("Access-Control-Allow-Origin: ","*");
+header("Access-Control-Allow-Methods: ", "PUT");
 
-if($_SERVER['REQUEST_METHOD'] != 'GET'){
+if($_SERVER['REQUEST_METHOD'] != 'PUT'){
     echo json_encode([
         'status'    => 400,
-        'message'   => 'You have to send a GET request.'
+        'message'   => 'You have to send a PUT request.'
     ]);
     exit();
 }
-
-
 $parts      = explode("/",ltrim($_SERVER['SCRIPT_NAME'],"/"));
 $root       = "http://".$_SERVER['HTTP_HOST'];
 
@@ -27,14 +26,25 @@ else{
 }
 
 require_once($path.'/connect_db.php');
-require_once($path.'/models/Weapons.php');
+require_once($path.'/models/Users.php');
 
 try{
-    $Weapons = new Weapons($conn);
-    echo json_encode([
-        'status'    => 200,
-        'data'      => $Weapons->getWeapons()
-    ], true);
+    $userId = $_POST['user_id'];
+    $roleId = $_POST['role_id'];
+
+    $Users = new Users($conn);
+    if($Users->setRole($userId, $roleId))
+        echo json_encode([
+            'status'    => 200,
+            'message'   => 'Role updated.'
+        ]);
+    else
+        echo json_encode([
+            'status'    => 400,
+            'errors'    => [
+                'can\'t update role'
+            ]
+        ]);
 }
 
 catch(PDOException $e){

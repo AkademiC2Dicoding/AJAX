@@ -1,11 +1,12 @@
 <?php
 ini_set('display_errors', 1);
 header("Access-Control-Allow-Origin: ","*");
+header("Access-Control-Allow-Methods: ", "GET");
 
-if($_SERVER['REQUEST_METHOD'] != 'POST'){
+if($_SERVER['REQUEST_METHOD'] != 'GET'){
     echo json_encode([
         'status'    => 400,
-        'message'   => 'You have to send a POST request.'
+        'message'   => 'You have to send a GET request.'
     ]);
     exit();
 }
@@ -27,39 +28,14 @@ else{
 }
 
 require_once($path.'/connect_db.php');
-require_once($path.'/models/Users.php');
 require_once($path.'/models/Weapons.php');
-require_once($path.'/models/Inventory.php');
 
 try{
-    $input      = json_decode(file_get_contents('php://input'),true);
-
-    $userId     = $input['user_id'];
-    $weaponId   = $input['weapon_id'];
-    $amount     = $input['amount'];
-
-    $Users      = new Users($conn);
-    $Weapons    = new Weapons($conn);
-
-
-    $userData   = $Users->find($userId);
-    $weaponData = $Weapons->getWeapon($weaponId);
-
-    if($weaponData['weapon_price']*$amount > $userData['money']){
-        echo json_encode([
-           'status'     => 400,
-           'message'    => 'insufficient money'
-        ], true);
-    }
-
-    else{
-
-        echo json_encode([
-            'status'    => 200,
-            'message'   => 'Bought!',
-            'data'      => $Users->buyWeapon($userData, $weaponData, $amount)
-        ], true);
-    }
+    $Weapons = new Weapons($conn);
+    echo json_encode([
+        'status'    => 200,
+        'data'      => $Weapons->getWeapons()
+    ], true);
 }
 
 catch(PDOException $e){

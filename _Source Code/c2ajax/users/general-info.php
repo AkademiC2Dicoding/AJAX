@@ -1,11 +1,12 @@
 <?php
 header("Access-Control-Allow-Origin: ","*");
+header("Access-Control-Allow-Methods: ", "GET");
 ini_set('display_errors', 1);
 
-if($_SERVER['REQUEST_METHOD'] != 'POST'){
+if($_SERVER['REQUEST_METHOD'] != 'GET'){
     echo json_encode([
         'status'    => 400,
-        'message'   => 'You have to send a POST request.'
+        'message'   => 'You have to send a GET request.'
     ]);
     exit();
 }
@@ -30,8 +31,7 @@ require_once($path.'/connect_db.php');
 require_once($path.'/models/Users.php');
 
 try{
-    $input      = json_decode(file_get_contents('php://input'),true);
-    $userId     = $input['user_id'];
+    $userId     = $_GET['user_id'];
 
     $Users      = new Users($conn);
     $userData   = $Users->getUserInfo($userId);
